@@ -7,6 +7,7 @@ from PIL import Image
 from glob import glob
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.image import load_img, img_to_array, ImageDataGenerator
+from tensorflow.keras.utils import to_categorical
 from tf_explain.core.grad_cam import GradCAM
 
 
@@ -16,6 +17,7 @@ def loadImage(image_path, shape):
     image = tf.cast(image, tf.float32)
     image /= 255.
     return image
+
 
 def loadImageV2(image_path, size):
     """
@@ -27,10 +29,11 @@ def loadImageV2(image_path, size):
         Image (array) - Loaded image with determined by argument size
     """
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-#     image = cv2.resize(image, (shape, shape))
+    #     image = cv2.resize(image, (shape, shape))
     image = Image.fromarray(image)
     image = image.resize((size, size))
     return image
+
 
 def num(filename):
     """
@@ -41,13 +44,13 @@ def num(filename):
         val (int) -> number between parentheses
     """
     val = 0
-    for i in range(len(filename)) :
-        if filename[i] == '(' :
-            while True :
+    for i in range(len(filename)):
+        if filename[i] == '(':
+            while True:
                 i += 1
-                if filename[i] == ')' :
+                if filename[i] == ')':
                     break
-                val = (val*10) + int(filename[i])
+                val = (val * 10) + int(filename[i])
             break
     return val
 
@@ -68,8 +71,7 @@ def createDataset(images, masks, batch_size):
     return data
 
 
-
-def loadData(path=None, size=256, files=False, batch_size=16, split=0.15):
+def loadData(path=None, size=256, files=False, batch_size=16, split=0.15, classification_problem=False):
     '''
     Function to load data from specific folders architecure and in defined shape.
     Folders Architecture:
@@ -97,6 +99,7 @@ def loadData(path=None, size=256, files=False, batch_size=16, split=0.15):
     benign_path = []
     malignant_path = []
     normal_path = []
+    labels = []
 
     for single_class in classes:
         images_and_mask = glob(os.path.join(path, "", single_class, "*"))
@@ -108,13 +111,13 @@ def loadData(path=None, size=256, files=False, batch_size=16, split=0.15):
             normal_path += images_and_mask
 
     benign_image, benign_mask = np.zeros((437, size, size, 1)), \
-                                np.zeros((437, size, size, 1))
+        np.zeros((437, size, size, 1))
 
     malignant_image, malignant_mask = np.zeros((210, size, size, 1)), \
-                                      np.zeros((210, size, size, 1))
+        np.zeros((210, size, size, 1))
 
     normal_image, normal_mask = np.zeros((133, size, size, 1)), \
-                                np.zeros((133, size, size, 1))
+        np.zeros((133, size, size, 1))
 
     for image in benign_path:
         img = loadImageV2(image, size)
@@ -122,6 +125,7 @@ def loadData(path=None, size=256, files=False, batch_size=16, split=0.15):
             benign_mask[num(image) - 1] += img_to_array(img)
         else:
             benign_image[num(image) - 1] += img_to_array(img)
+            labels.append(0)
 
     for image in malignant_path:
         img = loadImageV2(image, size)
@@ -129,6 +133,7 @@ def loadData(path=None, size=256, files=False, batch_size=16, split=0.15):
             malignant_mask[num(image) - 1] += img_to_array(img)
         else:
             malignant_image[num(image) - 1] += img_to_array(img)
+            labels.append(1)
 
     for image in normal_path:
         img = loadImageV2(image, size)
@@ -136,11 +141,15 @@ def loadData(path=None, size=256, files=False, batch_size=16, split=0.15):
             normal_mask[num(image) - 1] += img_to_array(img)
         else:
             normal_image[num(image) - 1] += img_to_array(img)
+            labels.append(2)
 
     images = np.concatenate((benign_image, malignant_image, normal_image), axis=0).astype(np.float32) / 255.
 
     masks = np.concatenate((benign_mask, malignant_mask, normal_mask), axis=0).astype(np.float32) / 255.
-    masks[masks>1.0] = 1.0
+    masks[masks > 1.0] = 1.0
+
+    if classification_problem:
+        return images, masks, labels
 
     X_train, X_test, y_train, y_test = train_test_split(images, masks, test_size=split)
 
@@ -179,11 +188,11 @@ def show_images(data, model=None, explain=False, n_images=5, SIZE=(30, 15)):
     else:
         n_cols = 3
 
-    # Iterate through data 
+    # Iterate through data
     for plot_no in range(1, n_images + 1):
         for index, (images, masks) in enumerate(iter(data)):
 
-            # Select Items 
+            # Select Items
             id = np.random.randint(len(images))
             image, mask = images[id], masks[id]
 
@@ -191,12 +200,12 @@ def show_images(data, model=None, explain=False, n_images=5, SIZE=(30, 15)):
 
                 if explain:
                     # Make Prediction
-                    pred_mask = model.predict(image[np.newaxis,...])[0]
+                    pred_mask = model.predict(image[np.newaxis, ...])[0]
 
                     # Grad CAM
                     cam = GradCAM()
                     cam = cam.explain(
-                        validation_data=(np.array(image[np.newaxis,...]), np.array(mask)),
+                        validation_data=(np.array(image[np.newaxis, ...]), np.array(mask)),
                         class_index=1,
                         layer_name='attention_4',
                         model=model
@@ -268,3 +277,70 @@ def show_images(data, model=None, explain=False, n_images=5, SIZE=(30, 15)):
 
             # Break Loop
             break
+
+
+def preprocess_classification_data(masks, labels):
+    labels = np.array(labels)
+    labels = to_categorical(labels)
+    X_train, X_test, y_train, y_test = train_test_split(masks,
+                                                        labels,
+                                                        test_size=0.10,
+                                                        shuffle=True,
+                                                        random_state=1)
+    train_gen = ImageDataGenerator(horizontal_flip=True,
+                                   rotation_range=15,
+                                   width_shift_range=[-10, 10],
+                                   height_shift_range=[-10, 10],
+                                   zoom_range=[0.80, 1.00])
+    train_gen.fit(X_train)
+    return train_gen, X_train, X_test, y_train, y_test
+
+
+def visualize_segmentation_and_classification(images, masks, labels, model_c, model_s, n_images=10):
+    # labels = np.array(labels)
+    # labels = to_categorical(labels)
+
+    y_masks = model_s.predict(images) > 0.5
+    y_labels = model_c.predict(images)
+    info = ['benign', 'malignant', 'normal']
+
+    plt.figure(figsize=(40, 80))
+    i = 0
+    amount = 0
+    while amount < n_images:
+        x = np.random.randint(0, len(images) - 1)
+        # Grad CAM
+        cam = GradCAM()
+        cam = cam.explain(
+            validation_data=(np.array(images[x][np.newaxis, ...]), np.array(masks[x])),
+            class_index=1,
+            layer_name='attention_4',
+            model=model_s
+        )
+
+        plt.subplot(n_images, 4, i + 1)
+        plt.imshow(images[x], 'gray')
+        plt.title(f'{info[np.argmax(labels[x])]}', fontsize=45)
+        plt.axis('off')
+
+        plt.subplot(n_images, 4, i + 2)
+        plt.imshow(masks[x], 'gray')
+        plt.title(f'{info[np.argmax(labels[x])]}', fontsize=45)
+        plt.axis('off')
+
+        plt.subplot(n_images, 4, i + 3)
+        plt.imshow(y_masks[x], 'gray')
+        plt.title(f'{info[np.argmax(y_labels[x])]}', fontsize=45)
+        plt.axis('off')
+
+        # Grad Cam
+        plt.subplot(n_images, 4, i + 4)
+        plt.imshow(cam)
+        plt.axis('off')
+        plt.title("Grad CAM", fontsize=45)
+
+        amount += 1
+        i += 4
+
+
+plt.show()

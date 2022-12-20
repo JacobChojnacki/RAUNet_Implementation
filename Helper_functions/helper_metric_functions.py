@@ -28,6 +28,8 @@ def make_confusion_matrix(y_true, y_pred, classes=None, figsize=(10, 10), text_s
                               text_size=10)
   """
     # Create the confusion matrix
+    y_pred = np.argmax(y_pred, axis=1)
+    y_true = np.argmax(y_true, axis=1)
     cm = confusion_matrix(y_true, y_pred)
     cm_norm = cm.astype("float") / cm.sum(axis=1)[:, np.newaxis]  # normalize it
     n_classes = cm.shape[0]  # find the number of classes we're dealing with
@@ -82,7 +84,7 @@ def plot_loss_curves(history):
         history: TensorFlow model History object
     """
 
-    loss, metric, val_loss, val_metric = history.history.values()
+    loss, metric, val_loss, val_metric, lr = history.history.values()
 
     epochs = range(len(history.history['loss']))
 
@@ -111,6 +113,8 @@ def calculate_results(y_true, y_pred):
     Returns a dictionary of accuracy, precision, recall, f1-score.
     """
     # Calculate model accuracy
+    y_pred = np.argmax(y_pred, axis=1)
+    y_true = np.argmax(y_true, axis=1)
     model_accuracy = accuracy_score(y_true, y_pred) * 100
     # Calculate model precision, recall and f1 score using "weighted average
     model_precision, model_recall, model_f1, _ = precision_recall_fscore_support(y_true, y_pred, average="weighted")
