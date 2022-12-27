@@ -291,17 +291,17 @@ def Classification_model(shape=(128, 128, 1),
                    metrics=['accuracy'])
     return model
 
-def DenseBlock(x, num_filters, kernel_size, dropout, dilation_rate=(1, 1)):
-    dense_conv = BatchNormalization()(x)
-    dense_conv = tf.keras.layers.Activation("relu")(dense_conv)
-    dense_conv = Conv2D(num_filters, (1,1), padding='same', dilation_rate=dilation_rate)(dense_conv)
-    dense_conv = Dropout(dropout)(dense_conv)
-    dense_conv = BatchNormalization()(dense_conv)
-    dense_conv = tf.keras.layers.Activation('relu')(dense_conv)
-    dense_conv = Dropout(dropout)(dense_conv)
-    dense_conv = Conv2D(num_filters, kernel_size, padding='same', dilation_rate=dilation_rate)(dense_conv)
-    output = concatenate([x, dense_conv])
-    output = tf.keras.layers.Activation('relu')(output)
-    output = Dropout(dropout)(output)
-    return output
+# def DenseBlock(x, num_filters, kernel_size, dropout, dilation_rate=(1, 1)):
+#     dense_conv = BatchNormalization()(x)
+#     dense_conv = tf.keras.layers.Activation("relu")(dense_conv)
+#     dense_conv = Conv2D(num_filters, (1,1), padding='same', dilation_rate=dilation_rate)(dense_conv)
+#     dense_conv = Dropout(dropout)(dense_conv)
+#     dense_conv = BatchNormalization()(dense_conv)
+#     dense_conv = tf.keras.layers.Activation('relu')(dense_conv)
+#     dense_conv = Dropout(dropout)(dense_conv)
+#     dense_conv = Conv2D(num_filters, kernel_size, padding='same', dilation_rate=dilation_rate)(dense_conv)
+#     output = concatenate([x, dense_conv])
+#     output = tf.keras.layers.Activation('relu')(output)
+#     output = Dropout(dropout)(output)
+#     return output
 

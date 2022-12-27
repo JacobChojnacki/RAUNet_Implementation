@@ -99,6 +99,7 @@ def loadData(path=None, size=256, files=False, batch_size=16, split=0.15, classi
     benign_path = []
     malignant_path = []
     normal_path = []
+    images_paths = []
     labels = []
 
     for single_class in classes:
@@ -126,6 +127,7 @@ def loadData(path=None, size=256, files=False, batch_size=16, split=0.15, classi
         else:
             benign_image[num(image) - 1] += img_to_array(img)
             labels.append(0)
+            images_paths.append(image)
 
     for image in malignant_path:
         img = loadImageV2(image, size)
@@ -134,6 +136,7 @@ def loadData(path=None, size=256, files=False, batch_size=16, split=0.15, classi
         else:
             malignant_image[num(image) - 1] += img_to_array(img)
             labels.append(1)
+            images_paths.append(image)
 
     for image in normal_path:
         img = loadImageV2(image, size)
@@ -142,6 +145,7 @@ def loadData(path=None, size=256, files=False, batch_size=16, split=0.15, classi
         else:
             normal_image[num(image) - 1] += img_to_array(img)
             labels.append(2)
+            images_paths.append(image)
 
     images = np.concatenate((benign_image, malignant_image, normal_image), axis=0).astype(np.float32) / 255.
 
@@ -149,7 +153,7 @@ def loadData(path=None, size=256, files=False, batch_size=16, split=0.15, classi
     masks[masks > 1.0] = 1.0
 
     if classification_problem:
-        return images, masks, labels
+        return images, masks, labels, images_paths
 
     X_train, X_test, y_train, y_test = train_test_split(images, masks, test_size=split)
 
@@ -301,7 +305,7 @@ def visualize_segmentation_and_classification(images, masks, labels, model_c, mo
     # labels = to_categorical(labels)
 
     y_masks = model_s.predict(images) > 0.5
-    y_labels = model_c.predict(images)
+    y_labels = model_c.predict(images) > 0.8
     info = ['benign', 'malignant', 'normal']
 
     plt.figure(figsize=(40, 80))
