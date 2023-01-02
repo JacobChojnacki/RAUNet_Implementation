@@ -2,8 +2,7 @@ import numpy as np
 import itertools
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, f1_score
-from sklearn.metrics import confusion_matrix
-
+from sklearn.metrics import matthews_corrcoef, cohen_kappa_score, confusion_matrix
 
 # Our function needs a different name to sklearn's plot_confusion_matrix
 def make_confusion_matrix(y_true, y_pred, classes=None, figsize=(10, 10), text_size=15, norm=False, savefig=False):
@@ -115,11 +114,15 @@ def calculate_results(y_true, y_pred):
     # Calculate model accuracy
     y_pred = np.argmax(y_pred, axis=1)
     y_true = np.argmax(y_true, axis=1)
-    model_accuracy = accuracy_score(y_true, y_pred) * 100
+    model_accuracy = accuracy_score(y_true, y_pred)
     # Calculate model precision, recall and f1 score using "weighted average
     model_precision, model_recall, model_f1, _ = precision_recall_fscore_support(y_true, y_pred, average="weighted")
-    model_results = {"accuracy": model_accuracy,
-                     "precision": model_precision,
-                     "recall": model_recall,
-                     "f1": model_f1}
+    model_cohen_kappa = cohen_kappa_score(y_true, y_pred)
+    model_matthews_corrcoef = matthews_corrcoef(y_true, y_pred)
+    model_results = {"accuracy": model_accuracy * 100,
+                     "precision": model_precision * 100,
+                     "recall": model_recall * 100,
+                     "f1": model_f1 * 100,
+                     "MCC": model_matthews_corrcoef,
+                     "kappa": model_cohen_kappa}
     return model_results
