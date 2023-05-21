@@ -20,8 +20,12 @@ In the training process of the developed algorithm, a publicly available dataset
 
 * In summary, the developed algorithm based on Residual Attention U-Net architecture, along with image segmentation, showcased promising results in the early detection of breast cancer types using medical images.
 
-![Classification results](./Results/Classification_model/full_dataset.png)
-![Segmentation results](./Results/Classification_model/Results_1.png)
+<p align="center">
+  <img src="./Results/Classification_model/full_dataset.png" alt="Classification results" width="300" height="300" />
+</p>
+<p align="center">
+  <img src="./Results/Classification_model/Results_1.png" alt="Segmentation results" width="500" height="500" />
+</p>
 
 ## Installation steps
 
