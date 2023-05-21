@@ -1,0 +1,70 @@
+[build-system]
+requires      = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name        = "raunet"
+version     = "0.0.1"
+description = "Codebase for RAUNet. - Residual Attention U-Net for Semantic Segmentation of Remote Sensing Images in breast cancer detection."
+readme= "README.md"
+requires-python = ">= 3.8, <= 3.12"
+
+dependencies = [
+    "tensorflow",
+    "numpy",
+    "scikit-learn",
+    "seaborn",
+    "matplotlib",
+    "imageio",
+    "segmentation_models",
+    "tf-explain",
+]
+
+
+[project.optional-dependencies]
+jupyter = [
+    "jupyterlab~=3.6",
+    "pandas ~= 2.0",
+    "matplotlib ~= 3.7",
+    "seaborn ~= 0.12",
+    "plotly ~= 5.14",
+]
+
+lint = [
+    "black ~= 22.6",
+    "autoflake ~= 1.4",
+    "flake8 ~= 4.0",
+    "flake8-docstrings ~= 1.6",
+    "pyproject-flake8 ~= 0.0.1a4",
+    "isort ~= 5.10",
+    "pymarkdownlnt ~= 0.9",
+    "pre-commit ~= 2.20",
+]
+dev = ["raunet[jupyter, lint]"]
+
+[project.urls]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line_length = 120
+
+[tool.flake8]
+extend_exclude = [".venv/", "build/", "dist/", "docs/"]
+per_file_ignores = ["**/_[a-z]*.py:D", "tests/*.py:D", "*.pyi:D"]
+ignore = [
+    "D", # pydocstyle
+    "E", # pycodestyle
+    "W", # pycodestyle
+]
+ignore_decorators = "property" # https://github.com/PyCQA/pydocstyle/pull/546
+
+[tool.isort]
+profile             = "black"
+line_length         = 120
+order_by_type       = true
+lines_between_types = 1
+combine_as_imports  = true
+force_grid_wrap     = 2
+known_first_party   = "raunet"
