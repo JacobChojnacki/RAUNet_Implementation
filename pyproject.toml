@@ -12,18 +12,24 @@ requires-python = ">= 3.8, <= 3.12"
 dependencies = [
     "tensorflow",
     "numpy",
-    "sklearn",
+    "scikit-learn",
     "seaborn",
     "matplotlib",
     "imageio",
     "segmentation_models",
-    "glob"
+    "tf-explain",
 ]
 
 
 [project.optional-dependencies]
+jupyter = [
+    "jupyterlab~=3.6",
+    "pandas ~= 2.0",
+    "matplotlib ~= 3.7",
+    "seaborn ~= 0.12",
+    "plotly ~= 5.14",
+]
 
-jupyter = ["jupyterlab~=3.6"]
 lint = [
     "black ~= 22.6",
     "autoflake ~= 1.4",
