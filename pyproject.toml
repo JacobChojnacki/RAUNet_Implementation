@@ -6,30 +6,42 @@ build-backend = "setuptools.build_meta"
 name        = "raunet"
 version     = "0.0.1"
 description = "Codebase for RAUNet. - Residual Attention U-Net for Semantic Segmentation of Remote Sensing Images in breast cancer detection."
-readme= "README.md"
-requires-python = ">= 3.8, <= 3.12"
+readme      = "README.md"
+requires-python = ">= 3.10, < 3.12"
 
+# Mapped strictly from your Linux environment.yml
 dependencies = [
-    "tensorflow",
-    "numpy",
-    "scikit-learn",
-    "seaborn",
-    "matplotlib",
-    "imageio",
-    "segmentation_models",
-    "tf-explain",
+    "tensorflow==2.11.0",
+    "numpy==1.24.0",
+    "scikit-learn==1.2.0",
+    "scikit-image==0.19.3",
+    "scipy==1.9.3",
+    "pandas==1.5.2",
+    "matplotlib==3.6.2",
+    "seaborn==0.12.1",
+    "imageio==2.23.0",
+    "opencv-python==4.6.0.66",
+    "pillow==9.3.0",
+    "segmentation-models==1.0.1",
+    "tf-explain==0.3.1",
+    "graphviz==0.20.1",
+    "pydot==1.4.2",
+    "plot-model==0.20",
+    "requests==2.28.1",
+    "pyyaml==6.0",
+    "tqdm" # Highly recommended to add if you use progress bars, though not in your env list explicitly
 ]
-
 
 [project.optional-dependencies]
+# Updated to match environment.yml versions
 jupyter = [
-    "jupyterlab~=3.6",
-    "pandas ~= 2.0",
-    "matplotlib ~= 3.7",
-    "seaborn ~= 0.12",
-    "plotly ~= 5.14",
+    "notebook==6.5.2",
+    "ipywidgets==8.0.4",
+    "ipykernel==6.19.4",
+    "jupyterlab-widgets==3.0.5",
 ]
 
+# Linting was not in your env file, so I kept these as you had them
 lint = [
     "black ~= 22.6",
     "autoflake ~= 1.4",
@@ -43,6 +55,7 @@ lint = [
 dev = ["raunet[jupyter, lint]"]
 
 [project.urls]
+# Add your repository URL here if you have one
 
 [tool.setuptools.packages.find]
 where = ["src"]

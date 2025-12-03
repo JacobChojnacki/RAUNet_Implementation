@@ -1,7 +1,6 @@
 from tensorflow.keras import backend as K
 from tensorflow.keras import losses
 import tensorflow as tf
-
 def jaccard_coef(y_true, y_pred, smooth=1.0):
     """
     Function to calcularde Jaccard Inded definied by equation:
